@@ -1,12 +1,12 @@
 import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { login } from "../../store/actions/authAction";
+import { login } from "../../../store/actions/authAction";
 import { useNavigate } from "react-router";
 import { NavLink, Link } from "react-router-dom";
 import { ClipLoader } from "react-spinners";
 import { toast } from "react-toastify";
-import { isLoggedIn } from "../../utils/isLoggedIn";
-import Dropdown from "../Dropdown";
+import { isLoggedIn } from "../../../utils/isLoggedIn";
+import Dropdown from "../../Reusables/Dropdown";
 
 const LoginComponent = () => {
   const [userData, setUserData] = useState({

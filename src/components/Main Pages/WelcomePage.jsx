@@ -1,5 +1,5 @@
 import React from "react";
-import Dropdown from "./Dropdown";
+import Dropdown from "../Reusables/Dropdown";
 import { Link } from "react-router-dom";
 import { FaDev } from "react-icons/fa";
 

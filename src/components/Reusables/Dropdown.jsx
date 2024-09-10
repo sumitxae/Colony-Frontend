@@ -1,7 +1,8 @@
 import React, { useState, useEffect, useRef } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { Link } from "react-router-dom";
-import { selectTeams, setTeam } from "../store/reducers/colonySlice";
+import { selectTeams, setTeam } from "../../store/reducers/colonySlice";
+import { persistor } from "../../store/store";
 
 const Dropdown = ({
   head,
@@ -32,7 +33,7 @@ const Dropdown = ({
       e.preventDefault();
       const activeTeam = teams.find((team) => team.teamName === option);
       dispatch(setTeam(activeTeam));
-    }
+    } 
   };
 
   useEffect(() => {

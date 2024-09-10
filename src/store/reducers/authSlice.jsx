@@ -1,5 +1,5 @@
 import { createSlice } from "@reduxjs/toolkit";
-import { register, login } from "../actions/authAction";
+import { register, login, updateUser } from "../actions/authAction";
 import { fetchAllColonies } from "./colonySlice";
 
 const initialState = {
@@ -12,14 +12,12 @@ const authSlice = createSlice({
   name: "auth",
   initialState,
   reducers: {
-    updateUser: (state, action) => {
-      state.user = action.payload;
-    },
     logOut: (state) => {
+      localStorage.clear();
       state.token = null;
       state.user = null;
       state.error = null;
-      localStorage.clear();
+      state.contributor = null;
       window.location.href = "/";
     },
   },
@@ -28,7 +26,6 @@ const authSlice = createSlice({
       .addCase(register.fulfilled, (state, action) => {
         state.token = action.payload.token;
         state.user = action.payload.user;
-        console.log(state.user.colonies)
         fetchAllColonies(state.user.colonies)
         localStorage.setItem("token", action.payload.token);
       })
@@ -43,13 +40,19 @@ const authSlice = createSlice({
       })
       .addCase(login.rejected, (state, action) => {
         state.error = action.payload;
+      })
+      .addCase(updateUser.fulfilled, (state, action) => {
+        state.user = action.payload;
+      })
+      .addCase(updateUser.rejected, (state, action) => {
+        state.error = action.payload;
       });
   },
 });
 
 export default authSlice.reducer;
 
-export const { logOut, updateUser } = authSlice.actions;
+export const { logOut } = authSlice.actions;
 
 export const selectToken = (state) => state.auth.token;
 

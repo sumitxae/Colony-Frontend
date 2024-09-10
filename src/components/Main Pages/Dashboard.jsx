@@ -1,46 +1,45 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { Button } from "@mui/material";
 import { useDispatch, useSelector } from "react-redux";
-import { Link, useNavigate } from "react-router-dom";
-import { isLoggedIn } from "../utils/isLoggedIn";
-import { toast } from "react-toastify";
-import { selectToken, selectUser } from "../store/reducers/authSlice";
-import Dropdown from "./Dropdown";
+import { Link } from "react-router-dom";
+import { selectUser } from "../../store/reducers/authSlice";
+import Dropdown from "../Reusables/Dropdown";
 import { FaPlus, FaDev } from "react-icons/fa";
-import Modal from "./Modal";
-import { fetchActiveColony } from "../store/actions/colonyActions";
+import Modal from "../Action Manager/Modal";
+import { fetchActiveColony, getAlldecisions } from "../../store/actions/colonyActions";
 import {
+  selectAllDecisions,
   selectColony,
   selectTeam,
   selectTeams,
-} from "../store/reducers/colonySlice";
+} from "../../store/reducers/colonySlice";
 
 const Dashboard = () => {
-  const navigate = useNavigate();
-  const token = useSelector(selectToken);
   const user = useSelector(selectUser);
   const dispatch = useDispatch();
   const colony = useSelector(selectColony);
+  console.log(colony)
   const team = useSelector(selectTeam);
+  const decisions = useSelector(selectAllDecisions);
   const allTeams = useSelector(selectTeams);
-  const teams = allTeams ? [{teamName: "Root", _id: null }, ...allTeams] : [{teamName: "Root", _id: null }]
+  const teams = allTeams
+    ? [{ teamName: "Root", _id: null }, ...allTeams]
+    : [{ teamName: "Root", _id: null }];
   const [open, setOpen] = useState(false);
   const handleOpen = () => setOpen(true);
 
   const getColonyHandler = (id) => {
     dispatch(fetchActiveColony(id));
   };
-
-  const userBalance = user?.tokens.find(
+  const userBalance = user ? user?.tokens.find(
     (token) => token.symbol === colony?.nativeTokenSymbol
-  );
+  ): null;
 
   useEffect(() => {
-    if (!isLoggedIn(token)) {
-      toast.error("Please Login!");
-      navigate("/");
+    if (colony) {
+      dispatch(getAlldecisions(colony._id));
     }
-  }, [token, navigate]);
+  }, [colony, dispatch]);
 
   return (
     <div className="h-screen w-screen bg-zinc-900 text-white overflow-hidden flex flex-col lg:flex-row">
@@ -48,7 +47,6 @@ const Dashboard = () => {
         <ul className="flex lg:flex-col space-x-4 lg:space-x-0 lg:space-y-4">
           {user?.colonies.map((colony) => (
             <li key={colony._id}>
-              {/* {console.log(colony)} */}
               <Link
                 to="#"
                 onClick={() => getColonyHandler(colony._id)}
@@ -84,21 +82,6 @@ const Dashboard = () => {
               {colony?._id
                 ? colony._id.slice(0, 4) + "..." + colony._id.slice(18)
                 : ""}
-            </li>
-          </ul>
-          <ul
-            className={`flex space-x-4 text-teal-500 mb-4 lg:mb-0 ${
-              colony ? "block" : "hidden"
-            }`}
-          >
-            <li>
-              <a href="#">Actions</a>
-            </li>
-            <li>
-              <a href="#">Decisions</a>
-            </li>
-            <li>
-              <a href="#">Extensions</a>
             </li>
           </ul>
           <ul className="flex items-center space-x-6">
@@ -157,7 +140,12 @@ const Dashboard = () => {
                 >
                   New Action
                 </Button>
-                <Modal isOpen={open} teams={teams} team={team} setIsOpen={setOpen} />
+                <Modal
+                  isOpen={open}
+                  teams={teams}
+                  team={team}
+                  setIsOpen={setOpen}
+                />
               </div>
             </div>
             <div className="flex justify-between items-center">
@@ -187,83 +175,27 @@ const Dashboard = () => {
             <div className="grid grid-cols-1  lg:grid-cols-3 gap-6">
               <section className="bg-[#ffffff13] p-6 rounded-lg shadow-md col-span-2 overflow-auto h-[32rem] no-scrollbar">
                 <div className="space-y-4">
-                  <div className="flex items-center p-4 bg-[#ffffff13] rounded-md">
-                    <img
-                      src="https://via.placeholder.com/30"
-                      alt="User"
-                      className="rounded-full mr-4"
-                    />
-                    <div>
-                      <p>Pay sylv 10 PZA</p>
-                      <p className="text-sm text-red-400">Failed</p>
+                  {decisions?.toReversed().map((decision, index) => (
+                    index < 10 &&
+                    <div
+                      key={decision._id}
+                      className="flex items-center p-4 bg-[#ffffff13] rounded-md"
+                    >
+                      <img
+                        src={decision.creator.pfp}
+                        alt="Creator Pfp"
+                        className="rounded-full w-11 h-11 mr-4"
+                      />
+                      <div>
+                        <p className="flex items-center justify-between" >
+                          <span>{decision.title}</span>{
+                            decision.forced &&
+                          <span className="py-1 px-2 font-semibold rounded-lg ml-4 text-yellow-500 border border-yellow-500">Forced</span>}
+                        </p>
+                        <p className={`${decision.status === "Passed" ? "text-green-400" : decision.status === "Pending" ? "text-cyan-400" : "text-red-400" }`} >{decision.status}</p>
+                      </div>
                     </div>
-                  </div>
-                  <div className="flex items-center p-4 bg-[#ffffff13] rounded-md">
-                    <img
-                      src="https://via.placeholder.com/30"
-                      alt="User"
-                      className="rounded-full mr-4"
-                    />
-                    <div>
-                      <p>Award Sumit with a 250 pts reputation reward</p>
-                      <p className="text-sm text-green-400">Forced</p>
-                    </div>
-                  </div>
-                  <div className="flex items-center p-4 bg-[#ffffff13] rounded-md">
-                    <img
-                      src="https://via.placeholder.com/30"
-                      alt="User"
-                      className="rounded-full mr-4"
-                    />
-                    <div>
-                      <p>Move 25,000 PZA from E-cell Admin to Root</p>
-                      <p className="text-sm text-green-400">Forced</p>
-                    </div>
-                  </div>
-                  <div className="flex items-center p-4 bg-[#ffffff13] rounded-md">
-                    <img
-                      src="https://via.placeholder.com/30"
-                      alt="User"
-                      className="rounded-full mr-4"
-                    />
-                    <div>
-                      <p>Address book was updated</p>
-                      <p className="text-sm text-green-400">Forced</p>
-                    </div>
-                  </div>
-                  <div className="flex items-center p-4 bg-[#ffffff13] rounded-md">
-                    <img
-                      src="https://via.placeholder.com/30"
-                      alt="User"
-                      className="rounded-full mr-4"
-                    />
-                    <div>
-                      <p>Pay ayush 50,000 PZA</p>
-                      <p className="text-sm text-green-400">Forced</p>
-                    </div>
-                  </div>
-                  <div className="flex items-center p-4 bg-[#ffffff13] rounded-md">
-                    <img
-                      src="https://via.placeholder.com/30"
-                      alt="User"
-                      className="rounded-full mr-4"
-                    />
-                    <div>
-                      <p>Address book was updated</p>
-                      <p className="text-sm text-green-400">Forced</p>
-                    </div>
-                  </div>
-                  <div className="flex items-center p-4 bg-[#ffffff13] rounded-md">
-                    <img
-                      src="https://via.placeholder.com/30"
-                      alt="User"
-                      className="rounded-full mr-4"
-                    />
-                    <div>
-                      <p>Pay ayush 50,000 PZA</p>
-                      <p className="text-sm text-green-400">Forced</p>
-                    </div>
-                  </div>
+                  ))}
                 </div>
               </section>
               <section className="bg-[#ffffff13] p-6 rounded-lg shadow-md">

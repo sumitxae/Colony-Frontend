@@ -1,10 +1,10 @@
 import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { register } from "../../store/actions/authAction";
+import { register } from "../../../store/actions/authAction";
 import { NavLink, Link, useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
-import { isLoggedIn } from "../../utils/isLoggedIn";
-import Dropdown from "../Dropdown";
+import { isLoggedIn } from "../../../utils/isLoggedIn";
+import Dropdown from "../../Reusables/Dropdown";
 import { IoMdPersonAdd } from "react-icons/io";
 
 const RegisterComponent = () => {

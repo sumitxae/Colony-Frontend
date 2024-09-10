@@ -1,7 +1,7 @@
 import { createAsyncThunk } from "@reduxjs/toolkit";
 import axios from "../../../axios";
 import { toast } from "react-toastify";
-import { fetchAllColonies } from "./colonyActions";
+import { fetchAllColonies, getAlldecisions } from "./colonyActions";
 
 export const register = createAsyncThunk(
   "/auth/register",
@@ -42,7 +42,6 @@ export const login = createAsyncThunk(
         { withCredentials: true }
       );
       dispatch(fetchAllColonies(data.user.colonies));
-      console.log(data)
       return data;
     } catch (error) {
       return rejectWithValue(error.data);
@@ -50,4 +49,13 @@ export const login = createAsyncThunk(
   }
 );
 
-export { logOut, updateUser } from "../reducers/authSlice";
+export const updateUser = createAsyncThunk("auth/updateUser", async (id) => {
+  try {
+    const { data } = await axios.post(`/user/getUpdatedUser`);
+    return data;
+  } catch (error) {
+    toast.error(error.response.data.message);
+  }
+});
+
+export { logOut } from "../reducers/authSlice";
